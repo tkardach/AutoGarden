@@ -7,9 +7,11 @@ The purpose of this project is to create an automated gardening system. Plans fo
 </ul>
 
 This project will be split into three different parts: <br/>
- -Creating bluetooth peripheral devices<br/>
- -Creating a bluetooth host to issue commands to peripherals<br/>
- -Creating a mobile application to monitor and set data within the bluetooth host.<br/>
+<ul>
+ <li>Creating bluetooth peripheral devices</li>
+ <li>Creating a bluetooth host to issue commands to peripherals</li>
+ <li>Creating a mobile application to monitor and set data within the bluetooth host</li>
+</ul>
 
 The bluetooth peripherals will use Bluetooth Low Energy and will be responsible for receiving commands from the host and implementing those requests.
 
