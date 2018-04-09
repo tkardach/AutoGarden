@@ -1,5 +1,7 @@
 # AutoGarden
-The purpose of this project is to create an automated gardening system. Plans for this project include: <br/>
+The purpose of this project is to become a better programmer and to expand my skill set and understanding of full stack programming.
+
+The objective of this project is to create an automated gardening system. Plans for this project include: <br/>
 <ul>
  <li>Watering unique plants with different watering plans, following a user set schedule</li>
  <li>Using different watering methods, such as potted plants versus hydroponic methods</li>
