@@ -1,10 +1,12 @@
 # AutoGarden
 The purpose of this project is to create an automated gardening system. Plans for this project include:
+
  -Watering unique plants with different watering plans, following a user set schedule
  -Using different watering methods, such as potted plants versus hydroponic methods
  -Maintaining greenhouse climate
 
 This project will be split into three different parts: 
+
  -Creating bluetooth peripheral devices
  -Creating a bluetooth host to issue commands to peripherals
  -Creating a mobile application to monitor and set data within the bluetooth host.
