@@ -24,3 +24,11 @@ The mobile application will allow the user to add plants to be monitored and add
 The pre-coding phase system design looks as follows:
 
 ![alt-text](https://github.com/tkardach/AutoGarden/blob/master/Design/UML_v1.png)
+
+
+
+# Referenced Libraries
+<ul>
+ <li>https://github.com/adafruit/Adafruit_Sensor</li>
+ <li>https://github.com/adafruit/DHT-sensor-library</li>
+</ul>
