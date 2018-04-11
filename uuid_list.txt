@@ -1,0 +1,7 @@
+Test Service
+
+Service UUID:
+c7770a7f-c519-4cb1-a223-ff7417764176
+
+Characteristic UUID:
+5308f081-6e64-41cc-9269-13e88ccb0ad9
