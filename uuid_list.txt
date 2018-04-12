@@ -1,7 +1,17 @@
 Test Service
 
+Watering Service: 
 Service UUID:
-c7770a7f-c519-4cb1-a223-ff7417764176
+e3952659-639c-4908-add4-962008d48067
+Water Status Characteristic UUID:
+986fccef-17e9-4668-819c-0fc43b93b1c5
 
-Characteristic UUID:
-5308f081-6e64-41cc-9269-13e88ccb0ad9
+Climate Service:
+Service UUID:
+4fafc201-1fb5-459e-8fcc-c5c9c331914b
+Temperature F UUID:
+72d7c28d-485f-4872-b7ef-35d47e3b7f9e
+Temperature C UUID:
+11c92152-f0d9-4951-af84-19bb98c5fbec
+Humidity UUID:
+091978ea-da0a-4827-a35a-d1fc98c7aac1
