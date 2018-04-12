@@ -31,4 +31,5 @@ The pre-coding phase system design looks as follows:
 <ul>
  <li>https://github.com/adafruit/Adafruit_Sensor</li>
  <li>https://github.com/adafruit/DHT-sensor-library</li>
+ <li>https://github.com/IanHarvey/bluepy</li>
 </ul>
