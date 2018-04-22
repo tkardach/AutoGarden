@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AutoGarden</string>
+    <string name="plant_type_prompt">Watering style</string>
+    <string-array name="plant_types">
+        <item>Select plant type...</item>
+        <item>Potted</item>
+        <item>Hydroponic</item>
+    </string-array>
+</resources>

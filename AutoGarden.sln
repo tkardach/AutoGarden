@@ -1,0 +1,29 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoGarden", "AutoGarden\AutoGarden.csproj", "{B171104D-484B-495E-A41E-AD1C38A56099}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoGarden.Droid", "AutoGarden.Droid\AutoGarden.Droid.csproj", "{53FE184C-E8BD-40FE-8AB1-09A40B7EF775}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoGardenTest", "AutoGardenTest\AutoGardenTest.csproj", "{A9F43F06-5DAD-4228-8E64-11B2B3D0EF0D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B171104D-484B-495E-A41E-AD1C38A56099}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B171104D-484B-495E-A41E-AD1C38A56099}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B171104D-484B-495E-A41E-AD1C38A56099}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B171104D-484B-495E-A41E-AD1C38A56099}.Release|Any CPU.Build.0 = Release|Any CPU
+		{53FE184C-E8BD-40FE-8AB1-09A40B7EF775}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53FE184C-E8BD-40FE-8AB1-09A40B7EF775}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53FE184C-E8BD-40FE-8AB1-09A40B7EF775}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53FE184C-E8BD-40FE-8AB1-09A40B7EF775}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A9F43F06-5DAD-4228-8E64-11B2B3D0EF0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A9F43F06-5DAD-4228-8E64-11B2B3D0EF0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A9F43F06-5DAD-4228-8E64-11B2B3D0EF0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A9F43F06-5DAD-4228-8E64-11B2B3D0EF0D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <TextView
+        android:id="@+id/helloString"
+        android:text="Hi there stranger!"
+        android:textSize="30sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:textColor="@android:color/white"
+        android:textStyle="bold" />
+    <TextView
+        android:id="@+id/responseInfo"
+        android:text="{response info will be displayed here}"
+        android:textSize="15sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/helloString"
+        android:layout_centerHorizontal="true"
+        android:textColor="@android:color/white"
+        android:textStyle="bold" />
+    <Button
+        android:id="@+id/sendResponse"
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:layout_below="@id/responseInfo"
+        android:layout_centerHorizontal="true"
+        android:text="Push to send response!" />
+    <Button
+        android:id="@+id/addPlant"
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:layout_below="@id/sendResponse"
+        android:layout_centerHorizontal="true"
+        android:text="Add Plant" />
+</RelativeLayout>
