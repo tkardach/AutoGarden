@@ -2,6 +2,7 @@ using System;
 using Xunit;
 using Xunit.Abstractions;
 using AutoGarden.HardwareCommunication;
+using System.Threading.Tasks;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
 namespace AutoGardenTest
@@ -39,7 +40,7 @@ namespace AutoGardenTest
         }
 
         [Fact]
-        public async void TestRPiHTTPRequestAsync()
+        public async Task TestRPiHTTPRequestAsync()
         {
             var cmdStr = "TEST=Testing";
             var expectedString = "\nOK\n";
@@ -62,6 +63,15 @@ namespace AutoGardenTest
             output.WriteLine(retValue);
 
             Assert.Equal(expectedResult, retValue);
+        }
+
+        [Fact]
+        public void TestSSLHTTPRequest()
+        {
+            var retValue = RPiCommLink.RunClient("10.0.0.139", "10.0.0.139");
+
+            output.WriteLine(retValue);
+            Assert.Equal("OK", retValue);
         }
     }
 }

@@ -61,10 +61,6 @@ namespace AutoGarden.Droid
                 tb.Text = ex.Message;
                 return;
             }
-            finally
-            {
-                clientSocket.Close();
-            }
         }
     }
 }
