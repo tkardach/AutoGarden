@@ -21,9 +21,11 @@ The bluetooth host will be the brains of the operation. It will have a locally s
 
 The mobile application will allow the user to add plants to be monitored and add a greenhouse to be monitored. It will be responsible for establishing a connection between the bluetooth host and peripherals and creating a an interaction plan between the two devices depending on the peripheral's purpose.
 
-The pre-coding phase system design looks as follows:
+The current mobile application-side to server communication looks as follows:
 
-![alt-text](https://github.com/tkardach/AutoGarden/blob/master/Design/UML_v1.png)
+![alt-text](https://github.com/tkardach/AutoGarden/blob/master/Design/HW_COMM_v1.2.png)
+
+
 
 
 
