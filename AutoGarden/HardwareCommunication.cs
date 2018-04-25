@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AutoGarden.HardwareCommunication
@@ -14,9 +15,15 @@ namespace AutoGarden.HardwareCommunication
 
     public class RPiCommLink
     {
-        private const string URI =
-            "http://10.0.0.139/cgi-bin/hwctrl.py";
+        // HTTP constants for RPi connection
+        private const string URI    = "http://10.0.0.139/cgi-bin/hwctrl.py";
         private const string ID_CMD = "ID=Tombo";
+
+        // SSL Stream constants for RPi connection
+        private const string    URL         = "10.0.0.139";
+        private const string    SERVERNAME  = "10.0.0.139";
+        private const int       PORT        = 4443;
+
 
         private static RPiCommLink m_rpiCommLink;
 
@@ -35,7 +42,7 @@ namespace AutoGarden.HardwareCommunication
             return m_rpiCommLink;
         }
 
-        public string SendCommand(string cmd)
+        public static string SendCommand(string cmd)
         {
             try
             {
@@ -60,7 +67,7 @@ namespace AutoGarden.HardwareCommunication
             }
         }
 
-        public async Task<string> SendCommandAsync(string cmd)
+        public static async Task<string> SendCommandAsync(string cmd)
         {
             try
             {
@@ -97,11 +104,18 @@ namespace AutoGarden.HardwareCommunication
             return true;
         }
 
-        public static string RunClient(string machineName, string serverName)
+        public static string GenericCommand(string command)
+        {
+            command = string.Format("{{\"Command\" : \"Generic\", " +
+                                    "\"BLEDevice\" : {0} }}", command);
+            return RunClient(command);
+        }
+
+        public static string RunClient(string commands)
         {
             // Create a TCP/IP client socket.
             // machineName is the host running the server application.
-            TcpClient client = new TcpClient(machineName, 4443);
+            TcpClient client = new TcpClient(URL, PORT);
             Console.WriteLine("Client connected.");
 
             // Create an SSL stream that will close the client's stream.
@@ -115,7 +129,95 @@ namespace AutoGarden.HardwareCommunication
             // The server name must match the name on the server certificate.
             try
             {
-                sslStream.AuthenticateAsClient(serverName);
+                sslStream.AuthenticateAsClient(SERVERNAME);
+
+                sslStream.ReadTimeout = 5000;
+                sslStream.WriteTimeout = 5000;
+
+                // Encode a test message into a byte array.
+                // Signal the end of the message using the "<EOF>".
+                byte[] messsage = Encoding.UTF8.GetBytes(commands);
+
+
+                // Send message to the server. 
+                sslStream.Write(messsage);
+                sslStream.Flush();
+
+                // Read message from the server.
+                string serverMessage = ReadMessage(sslStream);
+                Console.WriteLine("Server says: {0}", serverMessage);
+
+                Console.WriteLine("Client closed.");
+
+                return serverMessage;
+            }
+            catch (AuthenticationException e)
+            {
+                Console.WriteLine("Exception: {0}", e.Message);
+                if (e.InnerException != null)
+                {
+                    Console.WriteLine("Inner exception: {0}", e.InnerException.Message);
+                }
+                Console.WriteLine("Authentication failed - closing the connection.");
+                client.Close();
+                return "Authentication Failed";
+            }
+            finally
+            {
+                // Close the connection.
+                client.Close();
+                sslStream.Close();
+            }
+        }
+
+        static string ReadMessage(SslStream sslStream)
+        {
+            // Read the  message sent by the server.
+            // The end of the message is signaled using the
+            // "<EOF>" marker.
+
+            byte[] buffer = new byte[2048];
+            StringBuilder messageData = new StringBuilder();
+            int bytes = -1;
+            do
+            {
+                bytes = sslStream.Read(buffer, 0, buffer.Length);
+
+                // Use Decoder class to convert from bytes to UTF8
+                // in case a character spans two buffers.
+                Decoder decoder = Encoding.UTF8.GetDecoder();
+                char[] chars = new char[decoder.GetCharCount(buffer, 0, bytes)];
+                decoder.GetChars(buffer, 0, bytes, chars, 0);
+                messageData.Append(chars);
+                // Check for EOF.
+                if (messageData.ToString().IndexOf("<EOF>", StringComparison.CurrentCulture) != -1)
+                {
+                    break;
+                }
+            } while (bytes != 0);
+
+            return messageData.ToString();
+        }
+
+        public static async Task<string> RunClientAsync(string commands)
+        {
+            // Create a TCP/IP client socket.
+            // machineName is the host running the server application.
+            TcpClient client = new TcpClient(URL, PORT);
+            Console.WriteLine("Client connected.");
+
+            // Create an SSL stream that will close the client's stream.
+            SslStream sslStream = new SslStream(
+                client.GetStream(),
+                false,
+                new RemoteCertificateValidationCallback(ValidateServerCertificate),
+                null
+                );
+
+            // The server name must match the name on the server certificate.
+            try
+            {
+                await sslStream.AuthenticateAsClientAsync(SERVERNAME);
             }
             catch (AuthenticationException e)
             {
@@ -131,14 +233,14 @@ namespace AutoGarden.HardwareCommunication
 
             // Encode a test message into a byte array.
             // Signal the end of the message using the "<EOF>".
-            byte[] messsage = Encoding.UTF8.GetBytes("Hello from the client.<EOF>");
+            byte[] messsage = Encoding.UTF8.GetBytes(commands + "<EOF>");
 
             // Send message to the server. 
-            sslStream.Write(messsage);
-            sslStream.Flush();
+            await sslStream.WriteAsync(messsage, 0, messsage.Length);
+            await sslStream.FlushAsync();
 
             // Read message from the server.
-            string serverMessage = ReadMessage(sslStream);
+            string serverMessage = await ReadMessageAsync(sslStream);
             Console.WriteLine("Server says: {0}", serverMessage);
 
             // Close the client connection.
@@ -149,7 +251,7 @@ namespace AutoGarden.HardwareCommunication
             return serverMessage;
         }
 
-        static string ReadMessage(SslStream sslStream)
+        static async Task<string> ReadMessageAsync(SslStream sslStream)
         {
             // Read the  message sent by the server.
             // The end of the message is signaled using the
@@ -159,7 +261,7 @@ namespace AutoGarden.HardwareCommunication
             int bytes = -1;
             do
             {
-                bytes = sslStream.Read(buffer, 0, buffer.Length);
+                bytes = await sslStream.ReadAsync(buffer, 0, buffer.Length);
 
                 if (bytes == 0) return "";
 
@@ -181,71 +283,91 @@ namespace AutoGarden.HardwareCommunication
 
     }
 
-    public interface IBLEService
+    /// <summary>
+    /// Creates a JSON object string representation of the object
+    /// </summary>
+    public interface JSONParsable
     {
-        string ServiceName { get; }
-        string ServiceUUID { get; }
+        string CreateJSON();
     }
 
-    public abstract class BLEDevice : IBLEService
+    public class BLEDevice : JSONParsable
     {
-        protected string m_deviceName;
+        string m_deviceName;
+        string m_commandString;
 
-        protected string m_serviceName;
-        protected string m_uuid;
+        Dictionary<string, BLEService> m_services;
 
-        private string m_deviceNameCmd = "HW=";
-        private string m_serviceUUIDCmd = "SUUID=";
-
-        protected string m_commandString;
-
-        protected List<string> m_characteristicUUIDs;
-
-        public BLEDevice(string deviceName, string serviceName, string uuid)
+        public BLEDevice(string deviceName)
         {
             m_deviceName = deviceName;
-            m_serviceName = serviceName;
-
-            m_deviceNameCmd += deviceName;
-            m_serviceUUIDCmd += uuid;
-
-            m_uuid = uuid;
-            m_characteristicUUIDs = new List<string>();
+            m_services = new Dictionary<string, BLEService>();
         }
 
         public string DeviceName => m_deviceName;
 
-        public string ServiceName => m_serviceName;
-
-        public string ServiceUUID => m_uuid;
+        /// <summary>
+        /// Adds the service to the BLEDevice
+        /// </summary>
+        /// <param name="service">Service to be added</param>
+        public bool AddService(BLEService service)
+        {
+            if (null == service) return false;
+            if (m_services.ContainsKey(service.UUID))
+                return false;
+            
+            m_services.Add(service.UUID, service);
+            return true;
+        }
 
         /// <summary>
-        /// Creates the HTTP command
+        /// Creates the JSON Object String
         /// </summary>
-        /// <returns>The HTTP Response</returns>
-        /// <param name="args">A list of all the GET attributes being sent</param>
-        protected string CreateCommand()
+        /// <returns>The JSON Object string</returns>
+        public string CreateJSON()
         {
-            string cmdResult = m_deviceNameCmd + "&" + m_serviceUUIDCmd + "&";
-            string cmdString = "CMD";
-
-            if (m_characteristicUUIDs.Count == 0) return cmdResult;
-
-            if (m_characteristicUUIDs.Count == 1) 
-                return string.Format("{0}={1}", cmdString, m_characteristicUUIDs[0]);
-
-            for (int i = 0; i < m_characteristicUUIDs.Count; i++)
+            string servicesString = "";
+            int i = 0;
+            foreach (var service in m_services.Values)
             {
-                cmdResult += string.Format("{0}{1}={2}", cmdString, i, m_characteristicUUIDs[i]);
-                if (i + 1 != m_characteristicUUIDs.Count)
-                    cmdResult += "&";
+                servicesString += service.CreateJSON();
+                if (i != m_services.Count - 1) servicesString += ", ";
             }
 
-            return cmdResult;
+            string jsonString = 
+                string.Format("{{ \"DeviceName\" : \"{0}\"," +
+                              "\"Services\" : [{1}] }}",
+                                  m_deviceName, servicesString);
+            return jsonString;
         }
     }
 
-    public class ClimateDevice : BLEDevice
+    public abstract class BLEService : JSONParsable
+    {
+        protected const string READ = "<r>";
+        protected const string WRITE_OPEN = "<w>";
+        protected const string WRITE_CLOSE = "</w>";
+
+        protected string m_serviceName;
+        protected string m_uuid;
+
+        protected List<string> m_characteristicUUIDs;
+
+        public BLEService(string serviceName, string uuid)
+        {
+            m_serviceName = serviceName;
+            m_uuid = uuid;
+
+            m_characteristicUUIDs = new List<string>();
+        }
+
+        public string ServiceName { get { return m_serviceName; } }
+        public string UUID { get { return m_uuid; } }
+
+        public abstract string CreateJSON();
+    }
+
+    public class ClimateService : BLEService
     {
         // Define Service UUID
         public static string CLIMATE_SERVICE_UUID = 
@@ -269,9 +391,7 @@ namespace AutoGarden.HardwareCommunication
         private double m_temperatureC   = double.NaN;
         private double m_humidity       = double.NaN;
 
-        public ClimateDevice(string deviceName) : base(deviceName, 
-                                                       SERVICE_NAME, 
-                                                       CLIMATE_SERVICE_UUID)
+        public ClimateService() : base(SERVICE_NAME, CLIMATE_SERVICE_UUID)
         {
             // Initialize BLE service
             m_serviceName = SERVICE_NAME;
@@ -281,41 +401,57 @@ namespace AutoGarden.HardwareCommunication
             m_characteristicUUIDs.Add(TEMPERATURE_F_UUID);
             m_characteristicUUIDs.Add(TEMPERATURE_C_UUID);
             m_characteristicUUIDs.Add(HUMIDITY_UUID);
-
-            // Initialize Command string
-            m_commandString = CreateCommand();
         }
 
-        public double TemperatureF { get { return m_temperatureF; } }
+        public double TemperatureF 
+        { 
+            set { m_temperatureF = value; }
+            get { return m_temperatureF; } 
+        }
 
-        public double TemperatureC { get { return m_temperatureC; } }
-
-        public double Humidity { get { return m_humidity; } }
-
-        public string CommandString { get { return m_commandString; } }
-
-        /// <summary>
-        /// Update all values from the BLE device
-        /// </summary>
-        /// <returns>The response message.</returns>
-        public string Update()
+        public double TemperatureC 
         {
-            return RPiCommLink.GetInstance().SendCommand(m_commandString);
+            set { m_temperatureC = value; }
+            get { return m_temperatureC; } 
+        }
+
+        public double Humidity 
+        {
+            set { m_humidity = value; }
+            get { return m_humidity; } 
         }
 
         /// <summary>
-        /// Update all values asynchronously from the BLE device
+        /// Creates a JSON object for requesting values through SSL
         /// </summary>
-        /// <returns>The response message.</returns>
-        public async Task<string> UpdateAsync()
+        /// <returns>The json string</returns>
+        public override string CreateJSON()
         {
-            return await RPiCommLink.GetInstance().SendCommandAsync(m_commandString);
+            string characteristicString = 
+                string.Format("{{ \"{0}\" : \"{1}\" }}," +
+                              "{{ \"{2}\" : \"{3}\" }}," +
+                              "{{ \"{4}\" : \"{5}\" }}",
+                              TEMPERATURE_F_UUID, READ,
+                              TEMPERATURE_C_UUID, READ,
+                              HUMIDITY_UUID, READ);
+
+            string jsonString = 
+                string.Format("{{ \"UUID\" : \"{0}\"," +
+                              "\"Characteristics\" : [{1}] }}",
+                                m_uuid, characteristicString);
+
+            return jsonString;
         }
     }
 
-    public class WaterDevice : BLEDevice
+    public class WaterService : BLEService
     {
-        public WaterDevice() : base("Blah", "", "") {}
+        public WaterService() : base("Blah", "") {}
+
+        public override string CreateJSON()
+        {
+            throw new NotImplementedException();
+        }
     }
 
 }

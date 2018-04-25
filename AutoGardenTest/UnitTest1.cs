@@ -17,24 +17,12 @@ namespace AutoGardenTest
         }
 
         [Fact]
-        public void TestClimateDeviceHTTPCommandCreation()
-        {
-            var climateDevice = new ClimateDevice("TestDevice");
-            var expectedString = 
-                string.Format("HW=TestDevice&SUUID={0}&CMD0={1}&CMD1={2}&CMD2={3}",
-                              climateDevice.ServiceUUID, ClimateDevice.TEMPERATURE_F_UUID,
-                              ClimateDevice.TEMPERATURE_C_UUID, ClimateDevice.HUMIDITY_UUID);
-
-            Assert.Equal(expectedString, climateDevice.CommandString);
-        }
-
-        [Fact]
         public void TestRPiHTTPRequest()
         {
             var cmdStr = "TEST=Testing";
             var expectedString = "\nOK\n";
 
-            var retValue = RPiCommLink.GetInstance().SendCommand(cmdStr);
+            var retValue = RPiCommLink.SendCommand(cmdStr);
 
             Assert.Equal(expectedString, retValue);
         }
@@ -45,30 +33,37 @@ namespace AutoGardenTest
             var cmdStr = "TEST=Testing";
             var expectedString = "\nOK\n";
 
-            var retValue = await RPiCommLink.GetInstance().SendCommandAsync(cmdStr);
+            var retValue = await RPiCommLink.SendCommandAsync(cmdStr);
 
             Assert.Equal(expectedString, retValue);
         }
 
         [Fact]
-        public void TestClimateDeviceConnection()
+        public void TestSendJSONThroughSSL()
         {
-            var climateDevice = new ClimateDevice("ClimateServiceBLE1");
-            var cmdStr = "HW=ClimateServiceBLE1";
-            var expectedResult = "\nSuccessfully connected to BLE device\n";
+            var expectedString = "\nOK\n";
 
-            var retValue = RPiCommLink.GetInstance().SendCommand(cmdStr);
+            var climateDevice = new BLEDevice("ClimateServiceBLE1");
+            climateDevice.AddService(new ClimateService());
 
+            var cmdStr = climateDevice.CreateJSON();
 
-            output.WriteLine(retValue);
+            var retValue = RPiCommLink.GenericCommand(cmdStr);
 
-            Assert.Equal(expectedResult, retValue);
+            Assert.Equal(expectedString, retValue);
+        }
+
+        [Fact]
+        public void TestAddClimateService()
+        {
+            var climateDevice = new BLEDevice("ClimateServiceBLE1");
+            Assert.True(climateDevice.AddService(new ClimateService()));
         }
 
         [Fact]
         public void TestSSLHTTPRequest()
         {
-            var retValue = RPiCommLink.RunClient("10.0.0.139", "10.0.0.139");
+            var retValue = RPiCommLink.RunClient("Oh hi mark");
 
             output.WriteLine(retValue);
             Assert.Equal("OK", retValue);
