@@ -46,11 +46,41 @@ namespace AutoGardenTest
             var climateDevice = new BLEDevice("ClimateServiceBLE1");
             climateDevice.AddService(new ClimateService());
 
-            var cmdStr = climateDevice.CreateJSON();
+            var cmdStr = climateDevice.CreateJSONRequest();
 
             var retValue = RPiCommLink.GenericCommand(cmdStr);
 
             Assert.Equal(expectedString, retValue);
+        }
+
+        [Fact]
+        public void TestScanCommandSSL()
+        {
+            var retValue = RPiCommLink.ScanCommand();
+
+            output.WriteLine(retValue[0].DeviceName);
+
+            Assert.NotEmpty(retValue);
+        }
+
+        [Fact]
+        public void TestAddCommandSSL()
+        {
+            var retValue = RPiCommLink.AddDeviceCommand("30:ae:a4:7b:01:6a");
+
+            output.WriteLine(retValue);
+
+            Assert.NotEmpty(retValue);
+        }
+
+        [Fact]
+        public void TestRemoveCommandSSL()
+        {
+            var retValue = RPiCommLink.RemoveDeviceCommand("30:ae:a4:7b:01:6a");
+
+            output.WriteLine(retValue);
+
+            Assert.NotEmpty(retValue);
         }
 
         [Fact]

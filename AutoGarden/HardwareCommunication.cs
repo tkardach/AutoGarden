@@ -9,6 +9,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 namespace AutoGarden.HardwareCommunication
 {
@@ -23,6 +24,15 @@ namespace AutoGarden.HardwareCommunication
         private const string    URL         = "10.0.0.139";
         private const string    SERVERNAME  = "10.0.0.139";
         private const int       PORT        = 4443;
+
+        // Command Strings
+        private const string COMMAND_STR    = "Command";
+        private const string SCAN_CMD       = "Scan";
+        private const string GENERIC_CMD    = "Generic";
+        private const string ADD_CMD        = "Add";
+        private const string REMOVE_CMD     = "Remove";
+        private const string MAC_STR        = "MAC";
+        private const string BLEDEVICE_STR  = "BLEDevice";
 
 
         private static RPiCommLink m_rpiCommLink;
@@ -106,12 +116,98 @@ namespace AutoGarden.HardwareCommunication
 
         public static string GenericCommand(string command)
         {
-            command = string.Format("{{\"Command\" : \"Generic\", " +
-                                    "\"BLEDevice\" : {0} }}", command);
-            return RunClient(command);
+            command = string.Format("{{\"{0}\" : \"{1}\", " +
+                                    "\"{2}\" : {3} }}", 
+                                    COMMAND_STR, GENERIC_CMD,
+                                    BLEDEVICE_STR, command);
+            
+            return RunClient(command, 5000);
+        }
+
+        public struct ScannedDevice
+        {
+            public string DeviceName;
+            public string MAC;
+            public List<string> ServiceUUID;
+        }
+
+        public static List<ScannedDevice> ScanCommand()
+        {
+            // Create command string to send to server
+            var command = string.Format("{{ \"{0}\" : \"{1}\" }}",
+                                        COMMAND_STR, SCAN_CMD);
+
+            // Get return value as JSON Object string
+            var jsonArray = RunClient(command, 10000);
+
+            var devices = JObject.Parse(jsonArray);
+
+            var scannedDevices = new List<ScannedDevice>();
+
+            // Itterate through each object
+            foreach (var dev in devices)
+            {
+                // Initialize a Scanned Device
+                var scannedDev = new ScannedDevice();
+                scannedDev.DeviceName = "No Name";
+                scannedDev.MAC = "No MAC";
+
+                // Set ScannedDevice attributes
+                scannedDev.MAC = (string)dev.Value["MAC"];
+
+                // Parse the device content for wanted values
+                var content = (JObject)dev.Value["Content"];
+                foreach (var data in content)
+                {
+                    switch(data.Key)
+                    {
+                        case "Complete Local Name":
+                            scannedDev.DeviceName = (string)data.Value;
+                            break;
+                        case "Complete 128b Services":
+                            if (scannedDev.ServiceUUID == null)
+                                scannedDev.ServiceUUID = new List<string>();
+                            scannedDev.ServiceUUID.Add((string)data.Value);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                scannedDevices.Add(scannedDev);
+            }
+
+            return scannedDevices;
+        }
+
+        public static string AddDeviceCommand(string mac)
+        {
+            var command = string.Format("{{\"{0}\" : \"{1}\", " +
+                                        "\"{2}\" : \"{3}\" }}",
+                                        COMMAND_STR, ADD_CMD,
+                                        MAC_STR, mac);
+            
+            // Get return value as JSON Object string
+            return RunClient(command, 10000);
+        }
+
+        public static string RemoveDeviceCommand(string mac)
+        {
+            var command = string.Format("{{\"{0}\" : \"{1}\", " +
+                                        "\"{2}\" : \"{3}\" }}",
+                                        COMMAND_STR, REMOVE_CMD,
+                                        MAC_STR, mac);
+
+            // Get return value as JSON Object string
+            return RunClient(command, 10000);
         }
 
         public static string RunClient(string commands)
+        {
+            return RunClient(commands, 5000);
+        }
+
+        public static string RunClient(string commands, int timeout)
         {
             // Create a TCP/IP client socket.
             // machineName is the host running the server application.
@@ -131,8 +227,7 @@ namespace AutoGarden.HardwareCommunication
             {
                 sslStream.AuthenticateAsClient(SERVERNAME);
 
-                sslStream.ReadTimeout = 5000;
-                sslStream.WriteTimeout = 5000;
+                sslStream.ReadTimeout = sslStream.WriteTimeout = timeout;
 
                 // Encode a test message into a byte array.
                 // Signal the end of the message using the "<EOF>".
@@ -193,13 +288,20 @@ namespace AutoGarden.HardwareCommunication
                 if (messageData.ToString().IndexOf("<EOF>", StringComparison.CurrentCulture) != -1)
                 {
                     break;
-                }
+                } 
+
+                if (messageData.Length == bytes) break;
             } while (bytes != 0);
 
             return messageData.ToString();
         }
 
         public static async Task<string> RunClientAsync(string commands)
+        {
+            return await RunClientAsync(commands, 5000);
+        }
+
+        public static async Task<string> RunClientAsync(string commands, int timeout)
         {
             // Create a TCP/IP client socket.
             // machineName is the host running the server application.
@@ -230,6 +332,8 @@ namespace AutoGarden.HardwareCommunication
                 client.Close();
                 return "Authentication Failed";
             }
+
+            sslStream.ReadTimeout = sslStream.WriteTimeout = timeout;
 
             // Encode a test message into a byte array.
             // Signal the end of the message using the "<EOF>".
@@ -288,7 +392,9 @@ namespace AutoGarden.HardwareCommunication
     /// </summary>
     public interface JSONParsable
     {
-        string CreateJSON();
+        string CreateJSONRequest();
+        string ParseJSONResponse();
+        string ToJSON();
     }
 
     public class BLEDevice : JSONParsable
@@ -320,21 +426,43 @@ namespace AutoGarden.HardwareCommunication
             return true;
         }
 
-        /// <summary>
-        /// Creates the JSON Object String
-        /// </summary>
-        /// <returns>The JSON Object string</returns>
-        public string CreateJSON()
+        public string CreateJSONRequest()
         {
             string servicesString = "";
             int i = 0;
             foreach (var service in m_services.Values)
             {
-                servicesString += service.CreateJSON();
+                servicesString += service.CreateJSONRequest();
                 if (i != m_services.Count - 1) servicesString += ", ";
             }
 
-            string jsonString = 
+            string jsonString =
+                string.Format("{{ \"DeviceName\" : \"{0}\"," +
+                              "\"Services\" : [{1}] }}",
+                                  m_deviceName, servicesString);
+            return jsonString;
+        }
+
+        public string ParseJSONResponse()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Creates the JSON Object String
+        /// </summary>
+        /// <returns>The JSON Object string</returns>
+        public string ToJSON()
+        {
+            string servicesString = "";
+            int i = 0;
+            foreach (var service in m_services.Values)
+            {
+                servicesString += service.ToJSON();
+                if (i != m_services.Count - 1) servicesString += ", ";
+            }
+
+            string jsonString =
                 string.Format("{{ \"DeviceName\" : \"{0}\"," +
                               "\"Services\" : [{1}] }}",
                                   m_deviceName, servicesString);
@@ -364,7 +492,9 @@ namespace AutoGarden.HardwareCommunication
         public string ServiceName { get { return m_serviceName; } }
         public string UUID { get { return m_uuid; } }
 
-        public abstract string CreateJSON();
+        public abstract string CreateJSONRequest();
+        public abstract string ParseJSONResponse();
+        public abstract string ToJSON();
     }
 
     public class ClimateService : BLEService
@@ -422,10 +552,10 @@ namespace AutoGarden.HardwareCommunication
         }
 
         /// <summary>
-        /// Creates a JSON object for requesting values through SSL
+        /// Creates a JSON object for network protocols
         /// </summary>
         /// <returns>The json string</returns>
-        public override string CreateJSON()
+        public override string CreateJSONRequest()
         {
             string characteristicString = 
                 string.Format("{{ \"{0}\" : \"{1}\" }}," +
@@ -442,13 +572,46 @@ namespace AutoGarden.HardwareCommunication
 
             return jsonString;
         }
+
+        public override string ParseJSONResponse()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string ToJSON()
+        {
+            string characteristicString =
+                string.Format("{{ \"{0}\" : \"{1}\" }}," +
+                              "{{ \"{2}\" : \"{3}\" }}," +
+                              "{{ \"{4}\" : \"{5}\" }}",
+                              TEMP_F_NAME, TEMPERATURE_F_UUID,
+                              TEMP_C_NAME, TEMPERATURE_C_UUID,
+                              HUMIDITY_NAME, HUMIDITY_UUID);
+
+            string jsonString =
+                string.Format("{{ \"UUID\" : \"{0}\"," +
+                              "\"Characteristics\" : [{1}] }}",
+                                m_uuid, characteristicString);
+
+            return jsonString;
+        }
     }
 
     public class WaterService : BLEService
     {
         public WaterService() : base("Blah", "") {}
 
-        public override string CreateJSON()
+        public override string CreateJSONRequest()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string ParseJSONResponse()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string ToJSON()
         {
             throw new NotImplementedException();
         }
