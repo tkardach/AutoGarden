@@ -6,6 +6,7 @@ sys.path.append('./python')
 
 import scan_ble
 import save_ble
+import connect_ble
 
 # SET VARIABLES
 
@@ -19,37 +20,32 @@ failedDevices = []
 
 # LOCAL METHODS
 
-def connect_ble(mac):
-   try:
-      if mac in devices:
-         return devices[mac]
-      device = btle.Peripheral(mac)
-      return device
-   except:
-      if mac not in failedDevices:
-         failedDevices.append(mac)
-      print "Failed to connect to " + mac
-      return None
-
 def connect_ble_devices(devList):
    try:
       completeSuccess = True
+
       # if devlist is empty return true
       if not devList:
          return True
 
       # for each mac in list, try to connect
       for mac in devList:
-         dev = connect_ble(mac)
+         if mac in devices:
+            continue
+         dev = connect_ble.connect_ble(mac)
+
          # if device connected, add to devices
          if dev is not None:
             devices[mac] = dev
+
          # else add to failed devices
          elif mac not in failedDevices:
+            failedDevices.append(mac)
             completeSuccess = False
+
       return completeSuccess
-   except:
-      print "connect_ble_devices failed"
+   except Exception as e:
+      print "connect_ble_devices failed: " + str(e)
       return False
 
 def retry_ble_connect():
@@ -64,16 +60,13 @@ def deal_generic(jsonObj):
 def deal_add_device(jsonObj):
    print "Adding Device..."
    if save_ble.save_ble_mac(jsonObj["MAC"]):
-      print "Saved Device"
       return "Device added successfully!"
    else:
-      print "Device not saved"
       return "Device not added"
 
 def deal_remove_device(jsonObj):
    print "Removing Device..."
    if save_ble.remove_ble_mac(jsonObj["MAC"]):
-      print jsonObj["MAC"] + " removed"
       return jsonObj["MAC"] + " removed"
    return "Failed to remove"
 
@@ -99,9 +92,13 @@ def deal_with_client(connstream):
          print jsonObj["Command"] + " Command"
 
          response = methods[jsonObj["Command"]](jsonObj)
+         if jsonObj["Command"] is "Scan":
+            print "Returning scan results"
+         else:
+            print response
+
          connstream.write(response + EOF)
       else:
-         print "NOT FOUND"
          return "Not Found in array"
    except:
       return 'An Error Occurred in deal_with_client'
