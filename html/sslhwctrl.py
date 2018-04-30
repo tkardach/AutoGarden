@@ -92,7 +92,7 @@ def deal_with_client(connstream):
          print jsonObj["Command"] + " Command"
 
          response = methods[jsonObj["Command"]](jsonObj)
-         if jsonObj["Command"] is "Scan":
+         if jsonObj["Command"] == "Scan":
             print "Returning scan results"
          else:
             print response
@@ -103,6 +103,7 @@ def deal_with_client(connstream):
    except:
       return 'An Error Occurred in deal_with_client'
    finally:
+      connstream.shutdown(socket.SHUT_RDWR)
       connstream.close()
 
 # SETUP SERVER
@@ -110,25 +111,29 @@ def deal_with_client(connstream):
 macList = save_ble.get_device_macs()
 
 
-if macList:
-   if connect_ble_devices(macList):
-      print "\nSuccessfully connected to BLE Devices"
-   else:
-      print "\nRetrying failed BLE connections"
-      retry_ble_connect()
+#if macList:
+#   print "Connecting to BLE devices:"
+#   if connect_ble_devices(macList):
+#      print "\nSuccessfully connected to BLE Devices"
+#   else:
+#      print "\nRetrying failed BLE connections"
+#      retry_ble_connect()
 
 # CREATE SOCKET
 
 bindsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-bindsocket.settimeout(10)
+#bindsocket.settimeout(10)
 bindsocket.bind((HOST, PORT))
-bindsocket.listen(5)
+bindsocket.listen(1)
 
 # LISTEN
+
+print "\nStarting to listen for client...\n"
 
 while True:
    try:
       newsocket, fromaddr = bindsocket.accept()
+
       connstream = ssl.wrap_socket(newsocket,
                                    server_side=True,
                                    certfile=CERTFILE,
@@ -139,5 +144,10 @@ while True:
       print "\nConnection Established..."
       deal_with_client(connstream)
       print "Done with client request...\n"
-   except:
-      pass
+   except ssl.SSLError as e:
+      print str(e)
+   except Exception as e:
+      print str(e)
+   finally:
+      if newsocket is not None:
+         newsocket.close()
