@@ -5,7 +5,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoGarden", "AutoGarden\Au
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoGarden.Droid", "AutoGarden.Droid\AutoGarden.Droid.csproj", "{53FE184C-E8BD-40FE-8AB1-09A40B7EF775}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoGardenTest", "AutoGardenTest\AutoGardenTest.csproj", "{A9F43F06-5DAD-4228-8E64-11B2B3D0EF0D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoGardenNUnit", "AutoGardenNUnit\AutoGardenNUnit.csproj", "{FEDF00F9-5B7B-4437-810D-A502F8937FC3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,9 +21,9 @@ Global
 		{53FE184C-E8BD-40FE-8AB1-09A40B7EF775}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{53FE184C-E8BD-40FE-8AB1-09A40B7EF775}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{53FE184C-E8BD-40FE-8AB1-09A40B7EF775}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A9F43F06-5DAD-4228-8E64-11B2B3D0EF0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A9F43F06-5DAD-4228-8E64-11B2B3D0EF0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A9F43F06-5DAD-4228-8E64-11B2B3D0EF0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A9F43F06-5DAD-4228-8E64-11B2B3D0EF0D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FEDF00F9-5B7B-4437-810D-A502F8937FC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FEDF00F9-5B7B-4437-810D-A502F8937FC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FEDF00F9-5B7B-4437-810D-A502F8937FC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FEDF00F9-5B7B-4437-810D-A502F8937FC3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

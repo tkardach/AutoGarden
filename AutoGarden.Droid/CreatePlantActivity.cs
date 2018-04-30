@@ -10,6 +10,7 @@ using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
+using AutoGarden.HardwareCommunication;
 using FR.Ganfra.Materialspinner;
 
 namespace AutoGarden.Droid
@@ -23,6 +24,7 @@ namespace AutoGarden.Droid
 
             SetContentView(Resource.Layout.CreatePlant);
 
+            /**** Create drop down for plant types ****/
             var plantTypes = (MaterialSpinner) FindViewById(Resource.Id.plantType);
 
             plantTypes.ItemSelected += spinner_ItemSelected;
@@ -32,6 +34,12 @@ namespace AutoGarden.Droid
             
             adapter.SetDropDownViewResource(Android.Resource.Layout.SimpleSpinnerDropDownItem);
             plantTypes.Adapter = adapter;
+
+            /*** Create drop down for know BLE devices ***/
+            var dbConn = DatabaseConnection.GetInstance();
+            var serviceList = dbConn.GetBLEServices();
+
+
         }
 
         private void spinner_ItemSelected(object sender, AdapterView.ItemSelectedEventArgs e)

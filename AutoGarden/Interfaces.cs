@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Interfaces 
+namespace AutoGarden.Interfaces 
 {
     public interface IWaterControl
     {
@@ -14,6 +14,16 @@ namespace Interfaces
         void ReadTemperatureFareinheit();
         void ReadTemperatureCelcius();
         void ReadHumidity();
+    }
+
+    /// <summary>
+    /// Creates a JSON object string representation of the object
+    /// </summary>
+    public interface JSONParsable
+    {
+        string CreateJSONRequest();
+        bool ParseJSONResponse(string response);
+        string ToJSON();
     }
 
 }
