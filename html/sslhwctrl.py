@@ -1,12 +1,15 @@
 import socket, ssl
 import json
 import sys
+import datetime
 
 sys.path.append('./python')
 
 import scan_ble
 import save_ble
 import connect_ble
+import security
+import pickle_list as pkl
 
 # SET VARIABLES
 
@@ -14,6 +17,7 @@ EOF = "<EOF>"
 HOST, PORT = '10.0.0.139', 4443
 CERTFILE = '/etc/ssl/certs/10.0.0.139.crt'
 CERTKEY  = '/etc/ssl/private/10.0.0.139.key'
+PWFILE   = '/var/www/html/bin/pw.txt'
 
 devices = {}
 failedDevices = []
@@ -100,8 +104,8 @@ def deal_with_client(connstream):
          connstream.write(response + EOF)
       else:
          return "Not Found in array"
-   except:
-      return 'An Error Occurred in deal_with_client'
+   except Exception as e:
+      print str(e)
    finally:
       connstream.shutdown(socket.SHUT_RDWR)
       connstream.close()
@@ -121,14 +125,15 @@ macList = save_ble.get_device_macs()
 
 # CREATE SOCKET
 
+context = ssl.SSLContext(ssl.PROTOCOL_TLS)
+
 bindsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-#bindsocket.settimeout(10)
 bindsocket.bind((HOST, PORT))
 bindsocket.listen(1)
 
 # LISTEN
 
-print "\nStarting to listen for client...\n"
+print "\nStarting to listen for client " + str(datetime.datetime.now().time()) + "...\n"
 
 while True:
    try:
@@ -141,7 +146,7 @@ while True:
                                    ssl_version=ssl.PROTOCOL_TLSv1)
       responseString = "Tough Shit"
 
-      print "\nConnection Established..."
+      print "\nConnection Established " + str(datetime.datetime.now().time()) + "..."
       deal_with_client(connstream)
       print "Done with client request...\n"
    except ssl.SSLError as e:
