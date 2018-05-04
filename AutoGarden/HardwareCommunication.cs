@@ -42,7 +42,7 @@ namespace AutoGarden.HardwareCommunication
         public static string GenericCommand(string command)
         {
             command = string.Format("{{\"{0}\" : \"{1}\", " +
-                                    "\"{2}\" : {3} }}",
+                                    "\"{2}\" : \"{3}\" }}",
                                     COMMAND_STR, GENERIC_CMD,
                                     BLEDEVICE_STR, command);
 
@@ -52,7 +52,7 @@ namespace AutoGarden.HardwareCommunication
         public static async Task<string> GenericCommandAsync(string command)
         {
             command = string.Format("{{\"{0}\" : \"{1}\", " +
-                                    "\"{2}\" : {3} }}",
+                                    "\"{2}\" : \"{3}\" }}",
                                     COMMAND_STR, GENERIC_CMD,
                                     BLEDEVICE_STR, command);
 
@@ -66,7 +66,7 @@ namespace AutoGarden.HardwareCommunication
                                         COMMAND_STR, SCAN_CMD);
 
             // Get return value as JSON Object string
-            var jsonArray = RunClient(command, 10000);
+            var jsonArray = RunClient(command, 60000);
 
             JObject devices = null;
 
@@ -81,6 +81,36 @@ namespace AutoGarden.HardwareCommunication
                 return null;
             }
 
+            return GenerateScannedDeviceList(devices);
+        }
+
+        public static async Task<List<BLEDevice>> ScanCommandAsync()
+        {
+            // Create command string to send to server
+            var command = string.Format("{{ \"{0}\" : \"{1}\" }}",
+                                        COMMAND_STR, SCAN_CMD);
+
+            // Get return value as JSON Object string
+            var jsonArray = await RunClientAsync(command, 60000);
+
+            JObject devices = null;
+
+            try
+            {
+                devices = JObject.Parse(jsonArray);
+                if (devices == null) return null;
+            }
+            catch (JsonException e)
+            {
+                Console.WriteLine("JSON Error: " + e.Message);
+                return null;
+            }
+
+            return await Task.Run(() => GenerateScannedDeviceList(devices));
+        }
+
+        private static List<BLEDevice> GenerateScannedDeviceList(JObject devices)
+        {
             var scannedDevices = new List<BLEDevice>();
 
             var recognizedServices = DatabaseConnection.GetBLEServices();
@@ -98,13 +128,13 @@ namespace AutoGarden.HardwareCommunication
                 var content = (JObject)dev.Value["Content"];
                 foreach (var data in content)
                 {
-                    switch(data.Key)
+                    switch (data.Key)
                     {
                         case "Complete Local Name":
                             scannedDev.DeviceName = (string)data.Value;
                             break;
                         case "Complete 128b Services":
-                            var service = 
+                            var service =
                                 recognizedServices.Single(o => o.UUID.Equals((string)data.Value));
                             scannedDev.AddService(service);
                             break;

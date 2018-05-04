@@ -3,8 +3,9 @@
     <string name="app_name">AutoGarden</string>
     <string name="plant_type_prompt">Watering style</string>
     <string-array name="plant_types">
-        <item>Select plant type...</item>
         <item>Potted</item>
         <item>Hydroponic</item>
     </string-array>
+
+    <string name="ble_device_select_prompt">Select device</string>
 </resources>

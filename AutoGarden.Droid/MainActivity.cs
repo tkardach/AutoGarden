@@ -6,12 +6,17 @@ using Android.App;
 using Android.Widget;
 using Android.OS;
 using System.IO;
+using AutoGarden.HardwareCommunication;
+using Android.Content;
+using System.Threading.Tasks;
 
 namespace AutoGarden.Droid
 {
     [Activity(Label = "AutoGarden", MainLauncher = true)]
     public class MainActivity : Activity
     {
+        TextView responseText;
+
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -23,44 +28,21 @@ namespace AutoGarden.Droid
             httpRequest.Click += Button_Click;
 
             var addPlant = FindViewById<Button>(Resource.Id.addPlant);
+
+            responseText = FindViewById<TextView>(Resource.Id.responseInfo);
+
             addPlant.Click += OnAddPlantButtonPressed;
 
         }
 
-
         void OnAddPlantButtonPressed(object sender, EventArgs e)
         {
-            SetContentView(Resource.Layout.CreatePlant);
+            StartActivity(typeof(CreatePlantActivity));
         }
 
-        void Button_Click(object sender, EventArgs e)
+        async void Button_Click(object sender, EventArgs e)
         {
-            var tb = FindViewById<TextView>(Resource.Id.responseInfo);
-
-            try
-            {
-                string URI = "http://10.0.0.139/cgi-bin/hwctrl.py";
-                string myParameters = "HW=ClimateServiceBLE1&CMD=ReadF&ID=Tombo";
-
-                string HtmlResult = "Oh well...";
-                using (WebClient wc = new WebClient())
-                {
-                    wc.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
-                    HtmlResult = wc.UploadString(URI, myParameters);
-                }
-
-                tb.Text = HtmlResult;
-            }
-            catch (SocketException ex)
-            {
-                tb.Text = ex.Message;
-                return;
-            }
-            catch (Exception ex)
-            {
-                tb.Text = ex.Message;
-                return;
-            }
+            responseText.Text = await Task.Run(() => RPiCommLink.GenericCommand("Farts"));
         }
     }
 }
