@@ -64,9 +64,9 @@ namespace AutoGarden.Bluetooth
             }
 
             string jsonString =
-                string.Format("{{ \"DeviceName\" : \"{0}\"," +
+                string.Format("{{ \"MAC\" : \"{0}\"," +
                               "\"Services\" : [{1}] }}",
-                                  m_deviceName, servicesString);
+                              m_mac, servicesString);
             return jsonString;
         }
 
@@ -127,8 +127,14 @@ namespace AutoGarden.Bluetooth
             return false;
         }
 
+
         public abstract bool ParseJSONResponse(string response);
         public abstract string ToJSON();
+
+        protected string CreateWriteCommand(string write) 
+        {
+            return WRITE_OPEN + write + WRITE_CLOSE;
+        }
     }
 
     public class ClimateService : BLEService
@@ -192,9 +198,12 @@ namespace AutoGarden.Bluetooth
         public override string CreateJSONRequest()
         {
             string characteristicString =
-                string.Format("{{ \"{0}\" : \"{1}\" }}," +
-                              "{{ \"{2}\" : \"{3}\" }}," +
-                              "{{ \"{4}\" : \"{5}\" }}",
+                string.Format("{{ \"UUID\" : \"{0}\" ," +
+                                 "\"CMD\" : \"{1}\"}}," +
+                              "{{ \"UUID\" : \"{2}\"," +
+                                 "\"CMD\" : \"{3}\"}}" +
+                              "{{ \"UUID\" : \"{4}\"," +
+                                 "\"CMD\" : \"{5}\"}}",
                               TEMPERATURE_F_UUID, READ,
                               TEMPERATURE_C_UUID, READ,
                               HUMIDITY_UUID, READ);
@@ -233,11 +242,74 @@ namespace AutoGarden.Bluetooth
 
     public class WaterService : BLEService
     {
-        public WaterService() : base("Blah", "") { }
+        // Define Service UUID
+        public static string WATER_SERVICE_UUID =
+            "e3952659-639c-4908-add4-962008d48067";
 
+        // Define Characteristics' UUIDs
+        public static string WATER_STATUS_UUID =
+            "986fccef-17e9-4668-819c-0fc43b93b1c5";
+        public static string WATER_TIMER_UUID =
+            "a4d167fd-ebf3-4e11-976f-cad6be4d52c6";
+
+        public enum WaterStatusValue : int { WATER_ON = 1, WATER_OFF = 0 };
+
+        private const string SERVICE_NAME = "Watering Service";
+        private const string WATER_STATUS_NAME = "Watering Status";
+        private const string WATER_TIMER_NAME = "Watering Timer";
+
+
+        // local variables to store sensor results
+        private int m_waterStatus;
+        private int m_waterTimer;
+
+        public WaterService() : base(SERVICE_NAME, WATER_SERVICE_UUID)
+        {
+            // Initialize BLE service
+            m_serviceName = SERVICE_NAME;
+            m_uuid = WATER_SERVICE_UUID;
+
+            // Initialize BLE characteristics
+            m_characteristicUUIDs.Add(WATER_STATUS_UUID);
+            m_characteristicUUIDs.Add(WATER_TIMER_UUID);
+
+            // Intialize characteristic values
+            m_waterStatus = 0;
+            m_waterTimer = 10000;
+        }
+
+        public int WaterStatus
+        {
+            set { m_waterStatus = value; }
+            get { return m_waterStatus; }
+        }
+
+        public int WaterTimer
+        {
+            set { m_waterTimer = value; }
+            get { return m_waterTimer; }
+        }
+
+        /// <summary>
+        /// Creates a JSON object for network protocols
+        /// </summary>
+        /// <returns>The json string</returns>
         public override string CreateJSONRequest()
         {
-            throw new NotImplementedException();
+            string characteristicString =
+                string.Format("{{ \"UUID\" : \"{0}\" ," +
+                                 "\"CMD\" : \"{1}\"}}," +
+                              "{{ \"UUID\" : \"{2}\"," +
+                                 "\"CMD\" : \"{3}\"}}",
+                              WATER_TIMER_UUID, CreateWriteCommand(m_waterTimer.ToString()),
+                              WATER_STATUS_UUID, CreateWriteCommand(m_waterStatus.ToString()));
+
+            string jsonString =
+                string.Format("{{ \"UUID\" : \"{0}\"," +
+                              "\"Characteristics\" : [{1}] }}",
+                                m_uuid, characteristicString);
+
+            return jsonString;
         }
 
         public override bool ParseJSONResponse(string response)
@@ -247,7 +319,18 @@ namespace AutoGarden.Bluetooth
 
         public override string ToJSON()
         {
-            throw new NotImplementedException();
+            string characteristicString =
+                string.Format("{{ \"{0}\" : \"{1}\" }}," +
+                              "{{ \"{2}\" : \"{3}\" }}",
+                              WATER_TIMER_NAME, WATER_TIMER_UUID,
+                              WATER_STATUS_NAME, WATER_STATUS_UUID);
+
+            string jsonString =
+                string.Format("{{ \"UUID\" : \"{0}\"," +
+                              "\"Characteristics\" : [{1}] }}",
+                                m_uuid, characteristicString);
+
+            return jsonString;
         }
     }
 

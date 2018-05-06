@@ -33,16 +33,50 @@ namespace AutoGarden.HardwareCommunication
         private const string GENERIC_CMD = "Generic";
         private const string ADD_CMD = "Add";
         private const string REMOVE_CMD = "Remove";
+        private const string TEST_STR = "Test";
+        private const string TEST_CMD = "Test";
         private const string MAC_STR = "MAC";
         private const string BLEDEVICE_STR = "BLEDevice";
 
+        public enum TestType : int { StringLoad = 0 }
 
         #region Protocol Commands
+
+        public static bool TestCommand(TestType command)
+        {
+            var strCommand = "";
+            switch(command) {
+                case TestType.StringLoad:
+                    strCommand = "string_load";
+                    break;
+                default:
+                    break;
+            }
+
+            strCommand = string.Format("{{\"{0}\" : \"{1}\", " +
+                                    "\"{2}\" : \"{3}\" }}",
+                                       COMMAND_STR, TEST_CMD,
+                                       TEST_STR, strCommand);
+
+            var jsonArray = RunClient(strCommand, 60000);
+
+            try
+            {
+                var testObjs = JObject.Parse(jsonArray);
+                if (testObjs == null) return false;
+                else return true;
+            }
+            catch (JsonException e)
+            {
+                Console.WriteLine("JSON Error: " + e.Message);
+                return false;
+            }
+        }
 
         public static string GenericCommand(string command)
         {
             command = string.Format("{{\"{0}\" : \"{1}\", " +
-                                    "\"{2}\" : \"{3}\" }}",
+                                    "\"{2}\" : {3} }}",
                                     COMMAND_STR, GENERIC_CMD,
                                     BLEDEVICE_STR, command);
 
@@ -134,9 +168,13 @@ namespace AutoGarden.HardwareCommunication
                             scannedDev.DeviceName = (string)data.Value;
                             break;
                         case "Complete 128b Services":
-                            var service =
-                                recognizedServices.Single(o => o.UUID.Equals((string)data.Value));
-                            scannedDev.AddService(service);
+                            try
+                            {
+                                var service =
+                                    recognizedServices.Single(o => o.UUID.Equals((string)data.Value));
+                                scannedDev.AddService(service);
+                            }
+                            catch (InvalidOperationException) {}
                             break;
                         default:
                             break;
@@ -216,6 +254,9 @@ namespace AutoGarden.HardwareCommunication
 
         public static string RunClient(string commands, int timeout)
         {
+            if (ServicePointManager.SecurityProtocol != SecurityProtocolType.Tls12)
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
             using (var client = new TcpClient())
             {
                 // Create a TCP/IP client socket.
@@ -306,8 +347,6 @@ namespace AutoGarden.HardwareCommunication
                 {
                     break;
                 }
-
-                if (messageData.Length == bytes) break;
             } while (bytes != 0);
 
             var resultString = messageData.ToString().Replace("<EOF>", "");

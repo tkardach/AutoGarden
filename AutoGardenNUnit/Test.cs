@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using AutoGarden.HardwareCommunication;
 using AutoGarden.Bluetooth;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace AutoGardenNUnit
 {
@@ -77,5 +79,28 @@ namespace AutoGardenNUnit
             Assert.True(climateDevice.AddService(new ClimateService()));
         }
 
+        [Test()]
+        public void TestStringLoad()
+        {
+            Assert.True(RPiCommLink.TestCommand(RPiCommLink.TestType.StringLoad));
+        }
+
+        [Test()]
+        public void TestWateringServiceON()
+        {
+            var waterDevice = new BLEDevice("CLE1", "30:ae:a4:7a:ff:56");
+            var service = new WaterService();
+            service.WaterTimer = 5000;
+            service.WaterStatus = (int)WaterService.WaterStatusValue.WATER_ON;
+
+            waterDevice.AddService(service);
+
+            var json = waterDevice.CreateJSONRequest();
+
+            var devices = JObject.Parse(json);
+            var retValue = RPiCommLink.GenericCommand(json);
+
+            Assert.NotNull(retValue);
+        }
     }
 }
