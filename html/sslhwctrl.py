@@ -7,8 +7,9 @@ sys.path.append('./python')
 
 import scan_ble
 import save_ble
-import connect_ble
+import connect_ble as bcon
 import security
+import test_protocols as test
 import pickle_list as pkl
 
 # SET VARIABLES
@@ -19,47 +20,49 @@ CERTFILE = '/etc/ssl/certs/10.0.0.139.crt'
 CERTKEY  = '/etc/ssl/private/10.0.0.139.key'
 PWFILE   = '/var/www/html/bin/pw.txt'
 
+READTOKEN = '<r>'
+WRITETOKEN1 = '<w>'
+WRITETOKEN2 = '</w>'
+WRITEERROR  = '<ERR>'
+
 devices = {}
 failedDevices = []
 
 # LOCAL METHODS
-
-def connect_ble_devices(devList):
+def get_write(str):
    try:
-      completeSuccess = True
-
-      # if devlist is empty return true
-      if not devList:
-         return True
-
-      # for each mac in list, try to connect
-      for mac in devList:
-         if mac in devices:
-            continue
-         dev = connect_ble.connect_ble(mac)
-
-         # if device connected, add to devices
-         if dev is not None:
-            devices[mac] = dev
-
-         # else add to failed devices
-         elif mac not in failedDevices:
-            failedDevices.append(mac)
-            completeSuccess = False
-
-      return completeSuccess
+      return  str.split(WRITETOKEN1)[1].split(WRITETOKEN2)[0]
    except Exception as e:
-      print "connect_ble_devices failed: " + str(e)
-      return False
-
-def retry_ble_connect():
-   return connect_ble_devices(failedDevices)
+      print str(e)
+      return WRITEERROR
 
 # HANDLER METHODS
 
 def deal_generic(jsonObj):
-   print "I did not hit her, I did nawt!"
-   return "Oh Hi Mark"
+   jsonObj = jsonObj["BLEDevice"]
+   dev = bcon.connect_ble(jsonObj["MAC"])
+   if dev is None:
+      return "Failed to connect to ble device"
+   retString = ""
+   for service in jsonObj["Services"]:
+      serviceUUID = service["UUID"]
+      bleService = bcon.get_service(dev, serviceUUID)
+      for characteristic in service["Characteristics"]:
+         uuid = characteristic["UUID"]
+         cmd = characteristic["CMD"]
+         if WRITETOKEN1 in cmd:
+            newCmd = get_write(cmd)
+            if cmd is WRITEERROR:
+               retString += "Failed to identify " + str(cmd) + "\n"
+               continue
+            bcon.write_characteristic(bleService, uuid, newCmd)
+            retString += str(newCmd) + " written to device\n"
+         if READTOKEN in cmd:
+            readVal = bcon.read_characteristic(bleService, uuid)
+            if readVal is not None:
+               retString += str(uuid) + " Read\n"
+   dev.disconnect()
+   return retString
 
 def deal_add_device(jsonObj):
    print "Adding Device..."
@@ -78,11 +81,25 @@ def deal_scan_devices(jsonObj):
    retJson = scan_ble.get_scan_devices_json(5)
    return retJson
 
+def deal_test(jsonObj):
+   if jsonObj["Test"] in tests:
+      print jsonObj["Test"] + " Test"
+
+      response = tests[jsonObj["Test"]]()
+      return response
+   else:
+      return "Test not recognized"
+
+tests = {
+"string_load" : test.test_string_load
+}
+
 methods = {
 "Generic" : deal_generic,
 "Add" : deal_add_device,
 "Remove" : deal_remove_device,
-"Scan" : deal_scan_devices
+"Scan" : deal_scan_devices,
+"Test" : deal_test
 }
 
 
@@ -90,21 +107,23 @@ methods = {
 
 def deal_with_client(connstream):
    try:
-      jsonObj = json.loads(connstream.read())
+      clientReq = connstream.recv(4096)
+      jsonObj = json.loads(clientReq)
 
       if jsonObj["Command"] in methods:
          print jsonObj["Command"] + " Command"
 
          response = methods[jsonObj["Command"]](jsonObj)
-         if jsonObj["Command"] == "Scan":
-            print "Returning scan results"
+         if jsonObj["Command"] == "Scan" or jsonObj["Command"] == "Test":
+            print "Returning " + jsonObj["Command"] + " results"
          else:
             print response
 
-         connstream.write(response + EOF)
+         connstream.sendall(response + EOF)
       else:
          return "Not Found in array"
    except Exception as e:
+      print "Error in deal_with_client"
       print str(e)
    finally:
       connstream.shutdown(socket.SHUT_RDWR)
