@@ -20,6 +20,7 @@ CERTFILE = '/etc/ssl/certs/10.0.0.139.crt'
 CERTKEY  = '/etc/ssl/private/10.0.0.139.key'
 PWFILE   = '/var/www/html/bin/pw.txt'
 
+# Command tokens
 READTOKEN = '<r>'
 WRITETOKEN1 = '<w>'
 WRITETOKEN2 = '</w>'
@@ -28,7 +29,10 @@ WRITEERROR  = '<ERR>'
 devices = {}
 failedDevices = []
 
-# LOCAL METHODS
+############# LOCAL METHODS #############
+
+# Parses a string with the WRITETOKEN1 and WRITETOKEN2
+# strings within them
 def get_write(str):
    try:
       return  str.split(WRITETOKEN1)[1].split(WRITETOKEN2)[0]
@@ -36,34 +40,50 @@ def get_write(str):
       print str(e)
       return WRITEERROR
 
-# HANDLER METHODS
+############# HANDLER METHODS #############
 
+# Deals with a generic command targetted at a
+# specific BLE device. Returns a JSON Object
+# representing the device, containing a dict
+# of all services and their characteristics
+# with the server return values.
 def deal_generic(jsonObj):
    jsonObj = jsonObj["BLEDevice"]
+   # Connect to the BLE device
    dev = bcon.connect_ble(jsonObj["MAC"])
    if dev is None:
       return "Failed to connect to ble device"
-   retString = ""
+   jDevice = {}
+   jService = {}
+   # Itterate services
    for service in jsonObj["Services"]:
+      jChar = {}
       serviceUUID = service["UUID"]
       bleService = bcon.get_service(dev, serviceUUID)
+      # Itterate characteristics; send commands
       for characteristic in service["Characteristics"]:
          uuid = characteristic["UUID"]
          cmd = characteristic["CMD"]
+         # Write command
          if WRITETOKEN1 in cmd:
             newCmd = get_write(cmd)
             if cmd is WRITEERROR:
-               retString += "Failed to identify " + str(cmd) + "\n"
+               jChar[uuid] = WRITEERROR
                continue
             bcon.write_characteristic(bleService, uuid, newCmd)
-            retString += str(newCmd) + " written to device\n"
+            jChar[uuid] = bcon.read_characteristic(bleSerivce, uuid)
+         # Read command
          if READTOKEN in cmd:
             readVal = bcon.read_characteristic(bleService, uuid)
             if readVal is not None:
-               retString += str(uuid) + " Read\n"
+               jChar[uuid] = readVal
+      jService[serviceUUID] = jChar
+   jDevice[jsonObj["MAC"]] = jService
+   # Disconnect from device
    dev.disconnect()
-   return retString
+   return json.dumps(jDevice)
 
+# Adds a device's MAC address to storage
 def deal_add_device(jsonObj):
    print "Adding Device..."
    if save_ble.save_ble_mac(jsonObj["MAC"]):
@@ -71,16 +91,20 @@ def deal_add_device(jsonObj):
    else:
       return "Device not added"
 
+# Removes a device's MAC address from storage
 def deal_remove_device(jsonObj):
    print "Removing Device..."
    if save_ble.remove_ble_mac(jsonObj["MAC"]):
       return jsonObj["MAC"] + " removed"
    return "Failed to remove"
 
+# Scan for nearby BLE devices and return the
+# results as a JSON object
 def deal_scan_devices(jsonObj):
    retJson = scan_ble.get_scan_devices_json(5)
    return retJson
 
+# Test handler
 def deal_test(jsonObj):
    if jsonObj["Test"] in tests:
       print jsonObj["Test"] + " Test"
@@ -90,10 +114,12 @@ def deal_test(jsonObj):
    else:
       return "Test not recognized"
 
+# Collection of test methods
 tests = {
 "string_load" : test.test_string_load
 }
 
+# Collection of handler methods
 methods = {
 "Generic" : deal_generic,
 "Add" : deal_add_device,
@@ -103,13 +129,15 @@ methods = {
 }
 
 
-# CLIENT HANDLER
+############ CLIENT HANDLER ##############
 
+# General method for dealing with client requests
 def deal_with_client(connstream):
    try:
       clientReq = connstream.recv(4096)
       jsonObj = json.loads(clientReq)
 
+      # Check command type and call function
       if jsonObj["Command"] in methods:
          print jsonObj["Command"] + " Command"
 
@@ -129,18 +157,9 @@ def deal_with_client(connstream):
       connstream.shutdown(socket.SHUT_RDWR)
       connstream.close()
 
-# SETUP SERVER
+############# SETUP SERVER #############
 
 macList = save_ble.get_device_macs()
-
-
-#if macList:
-#   print "Connecting to BLE devices:"
-#   if connect_ble_devices(macList):
-#      print "\nSuccessfully connected to BLE Devices"
-#   else:
-#      print "\nRetrying failed BLE connections"
-#      retry_ble_connect()
 
 # CREATE SOCKET
 
@@ -168,8 +187,6 @@ while True:
       print "\nConnection Established " + str(datetime.datetime.now().time()) + "..."
       deal_with_client(connstream)
       print "Done with client request...\n"
-   except ssl.SSLError as e:
-      print str(e)
    except Exception as e:
       print str(e)
    finally:
