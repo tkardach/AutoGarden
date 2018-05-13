@@ -4,13 +4,6 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <ImageView
-        android:id="@+id/plantImage"
-        android:layout_centerHorizontal="true"
-        android:layout_width="250dip"
-        android:layout_height="250dip"
-        android:layout_marginTop="25dip"
-        android:background="@drawable/img" />
     <TextView
         android:id="@+id/plantNamePrompt"
         android:hint="Plant Name"
@@ -22,8 +15,7 @@
         android:layout_marginTop="20dip"
         android:layout_marginBottom="10dip"
         android:layout_width="wrap_content"
-        android:layout_height="40dip"
-        android:layout_below="@id/plantImage" />
+        android:layout_height="40dip" />
     <EditText
         android:id="@+id/plantNameInput"
         android:hint="Enter Name..."
@@ -34,7 +26,6 @@
         android:layout_marginTop="20dip"
         android:layout_marginBottom="10dip"
         android:layout_toRightOf="@id/plantNamePrompt"
-        android:layout_below="@id/plantImage"
         android:padding="5dip"
         android:editable="true"
         android:includeFontPadding="false"
@@ -57,6 +48,7 @@
     <Spinner
         android:id="@+id/plantType"
         android:entries="@array/plant_types"
+        android:prompt="@string/plant_type_select_prompt"
         android:layout_width="match_parent"
         android:layout_height="40dip"
         android:layout_marginBottom="10dip"

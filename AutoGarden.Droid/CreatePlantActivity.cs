@@ -27,8 +27,9 @@ namespace AutoGarden.Droid
         Spinner plantTypes;
         ArrayAdapter plantTypeAdapter;
         ArrayAdapter bleServiceAdapter;
+        List<string> displayList;
 
-        protected override void OnCreate(Bundle savedInstanceState)
+        protected override async void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
 
@@ -36,24 +37,50 @@ namespace AutoGarden.Droid
 
             InitPlantTypes();
 
-            Task.Run(() => InitBLEScan()).Wait();
+            displayList = new List<string>();
+
+            InitBLESpinner();
+
+            var list = await Task.Run(() => GetBLEScannedDevList());
+
+            UpdateBLESpinnerAdapter(list);
         }
 
         private void InitPlantTypes()
         {
-            /**** Create drop down for plant types ****/
-            plantTypes = (Spinner)FindViewById(Resource.Id.plantType);
+            RunOnUiThread(() =>
+            {
+                /**** Create drop down for plant types ****/
+                plantTypes = (Spinner)FindViewById(Resource.Id.plantType);
+                plantTypes.ItemSelected += spinner_ItemSelected;
 
-            plantTypes.ItemSelected += spinner_ItemSelected;
-            plantTypeAdapter = ArrayAdapter.CreateFromResource(this,
-                                                          Android.Resource.Layout.SimpleSpinnerItem,
-                                                          Resource.Array.plant_types);
+                // Create Adapter
+                plantTypeAdapter = ArrayAdapter.CreateFromResource(this,
+                                                              Resource.Array.plant_types,
+                                                              Android.Resource.Layout.SimpleSpinnerItem);
 
-            plantTypeAdapter.SetDropDownViewResource(Android.Resource.Layout.SimpleSpinnerDropDownItem);
-            plantTypes.Adapter = plantTypeAdapter;
+                plantTypeAdapter.SetDropDownViewResource(Android.Resource.Layout.SimpleSpinnerDropDownItem);
+                plantTypes.Adapter = plantTypeAdapter;
+            });
         }
 
-        private void InitBLEScan()
+        private void InitBLESpinner()
+        {
+            RunOnUiThread(() => {
+                /**** Create drop down for ble devices ****/
+                bleDevices = (Spinner)FindViewById(Resource.Id.bleDevices);
+                bleDevices.ItemSelected += spinner_ItemSelected;
+
+                // Create Adapter
+                bleServiceAdapter = new ArrayAdapter(this,
+                                                     Android.Resource.Layout.SimpleSpinnerItem,
+                                                     displayList);
+                bleServiceAdapter.SetDropDownViewResource(Android.Resource.Layout.SimpleSpinnerDropDownItem);
+                bleDevices.Adapter = bleServiceAdapter;
+            });
+        }
+
+        private List<string> GetBLEScannedDevList()
         {
             /*** Create drop down for know BLE devices ***/
             try
@@ -61,32 +88,34 @@ namespace AutoGarden.Droid
                 var serviceList = DatabaseConnection.GetBLEServices();
                 var deviceList = RPiCommLink.ScanCommand();
 
-                bleDevices = (Spinner)FindViewById(Resource.Id.bleDevices);
+                if (deviceList == null) return null;
 
-                var displayList = new List<string>();
-                if (deviceList != null)
+                // Get device names
+                var list = new List<string>();
+                foreach (var dev in deviceList)
                 {
-                    foreach (var dev in deviceList)
-                    {
-                        displayList.Add(dev.DeviceName);
-                        Log.Info(TAG, dev.DeviceName);
-                    }
+                    list.Add(dev.DeviceName);
+                    Log.Info(TAG, dev.DeviceName);
                 }
 
-                bleDevices.ItemSelected += spinner_ItemSelected;
-
-                bleServiceAdapter = new ArrayAdapter(this,
-                                                     Android.Resource.Layout.SimpleSpinnerItem,
-                                                     displayList);
-
-                bleServiceAdapter.SetDropDownViewResource(Android.Resource.Layout.SimpleSpinnerDropDownItem);
-
-                bleDevices.Adapter = bleServiceAdapter;
+                return list;
             }
             catch (Exception e)
             {
                 string toast = string.Format("{0}", e.Message);
+                return null;
             }
+        }
+
+        void UpdateBLESpinnerAdapter(List<string> list)
+        {
+            RunOnUiThread(() =>
+            {
+                if (list == null) return;
+                bleServiceAdapter.Clear();
+                bleServiceAdapter.AddAll(list);
+                bleServiceAdapter.NotifyDataSetChanged();
+            });
         }
 
         private void spinner_ItemSelected(object sender, AdapterView.ItemSelectedEventArgs e)

@@ -7,5 +7,6 @@
         <item>Hydroponic</item>
     </string-array>
 
-    <string name="ble_device_select_prompt">Select device</string>
+    <string name="ble_device_select_prompt">Select Device</string>
+    <string name="plant_type_select_prompt">Select Plant Type</string>
 </resources>

@@ -90,7 +90,7 @@ namespace AutoGardenNUnit
         {
             var waterDevice = new BLEDevice("CLE1", "30:ae:a4:7a:ff:56");
             var service = new WaterService();
-            service.WaterTimer = 5000;
+            service.WaterTimer = 3000;
             service.WaterStatus = (int)WaterService.WaterStatusValue.WATER_ON;
 
             waterDevice.AddService(service);
