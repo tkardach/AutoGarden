@@ -40,10 +40,12 @@ namespace AutoGarden
         event WateringEventHandler OnWater;
     }
 
-    public abstract class Plant : IWaterable
+    public class Plant : IWaterable
     {
         protected List<WateringSchedule> m_wateringSchedule;
         protected string m_plantId;
+		protected string m_plantName;
+		protected DateTime m_plantDOB;
 
         public event WateringEventHandler OnWater;
 
@@ -51,10 +53,17 @@ namespace AutoGarden
         {
             m_plantId = Guid.NewGuid().ToString("N");
             m_wateringSchedule = new List<WateringSchedule>();
+			m_plantDOB = DateTime.Now;
         }
 
-        public string Name { get; set; } = "New Plant";
-        public DateTime DOB { get; set; } = DateTime.Now;
+		public Plant(string name) : base()
+		{
+			m_plantName = name;
+		}
+
+        public string Name { get { return m_plantName; } set { m_plantName = value; } }
+
+        public DateTime DOB { get { return m_plantDOB; } }
     }
 
     public class PottedPlant : Plant, IWaterControl

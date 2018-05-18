@@ -92,9 +92,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MainActivity.cs" />
-    <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CreatePlantActivity.cs" />
+    <Compile Include="Resources\Resource.designer.cs" />
+    <Compile Include="PlantListActivity.cs" />
+    <Compile Include="GardenGridAdapter.cs" />
+    <Compile Include="BLEScanService.cs" />
+    <Compile Include="SplashActivity.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />
@@ -109,6 +113,14 @@
     <AndroidResource Include="Resources\drawable\circle.xml" />
     <AndroidResource Include="Resources\drawable\img.xml" />
     <AndroidResource Include="Resources\values\Colors.xml" />
+    <AndroidResource Include="Resources\layout\GardenGridViewLayout.axml" />
+    <AndroidResource Include="Resources\layout\PlantGridItem.axml" />
+    <AndroidResource Include="Resources\drawable\griditemborder.xml" />
+    <AndroidResource Include="Resources\drawable\doge.png" />
+    <AndroidResource Include="Resources\layout\GridAddItem.axml" />
+    <AndroidResource Include="Resources\drawable\add.png" />
+    <AndroidResource Include="Resources\drawable\splashscreen.xml" />
+    <AndroidResource Include="Resources\values\Styles.xml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\mipmap-hdpi\" />

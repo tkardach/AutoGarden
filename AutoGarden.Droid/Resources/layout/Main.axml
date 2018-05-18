@@ -37,4 +37,11 @@
         android:layout_below="@id/sendResponse"
         android:layout_centerHorizontal="true"
         android:text="Add Plant" />
+    <Button
+        android:id="@+id/plantGridView"
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:layout_below="@id/addPlant"
+        android:layout_centerHorizontal="true"
+        android:text="To Plants" />
 </RelativeLayout>

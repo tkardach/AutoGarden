@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace AutoGarden.Droid
 {
-    [Activity(Label = "AutoGarden", MainLauncher = true)]
+    [Activity(Label = "AutoGarden")]
     public class MainActivity : Activity
     {
         TextView responseText;
@@ -27,17 +27,27 @@ namespace AutoGarden.Droid
             var httpRequest = FindViewById<Button>(Resource.Id.sendResponse);
             httpRequest.Click += Button_Click;
 
-            var addPlant = FindViewById<Button>(Resource.Id.addPlant);
-
             responseText = FindViewById<TextView>(Resource.Id.responseInfo);
 
+			var toPlant = FindViewById<Button>(Resource.Id.plantGridView);
+            toPlant.Click += OnToPlantViewButtonPressed;
+
+            var addPlant = FindViewById<Button>(Resource.Id.addPlant);
             addPlant.Click += OnAddPlantButtonPressed;
 
+			// Start BLE Scan Service
+			Intent bleServiceIntent = new Intent(this, typeof(BLEScanService));
+			StartService(bleServiceIntent);
         }
 
         void OnAddPlantButtonPressed(object sender, EventArgs e)
         {
             StartActivity(typeof(CreatePlantActivity));
+		}
+
+        void OnToPlantViewButtonPressed(object sender, EventArgs e)
+        {
+			StartActivity(typeof(PlantListActivity));
         }
 
         async void Button_Click(object sender, EventArgs e)

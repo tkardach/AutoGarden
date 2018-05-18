@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@drawable/griditemborder"
+        android:layout_margin="5dp">
+        <ImageView
+            android:id="@+id/plantGridItemImage"
+            android:layout_gravity="center"
+            android:layout_width="250px"
+            android:layout_height="250px" />
+        <TextView
+            android:id="@+id/plantGridItemName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="15sp"
+            android:minLines="2"
+            android:maxLines="2"
+            android:inputType="textMultiLine"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center"
+            android:scrollHorizontally="false"
+            android:text="Plant McPlantface" />
+    </LinearLayout>
+</LinearLayout>
