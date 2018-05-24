@@ -51,19 +51,34 @@ namespace AutoGarden
 
         public Plant() 
         {
-            m_plantId = Guid.NewGuid().ToString("N");
-            m_wateringSchedule = new List<WateringSchedule>();
+			Initialize();
+			m_plantName = "No Name";
 			m_plantDOB = DateTime.Now;
         }
 
-		public Plant(string name) : base()
+		public Plant(string name)
 		{
+			Initialize();
 			m_plantName = name;
+            m_plantDOB = DateTime.Now;
+		}
+
+        public Plant(string name, string dob)
+		{         
+            Initialize();
+            m_plantName = name;
+			DateTime.TryParse(dob, out m_plantDOB);
+		}
+
+        private void Initialize()
+		{         
+            m_plantId = Guid.NewGuid().ToString("N");
+            m_wateringSchedule = new List<WateringSchedule>();
 		}
 
         public string Name { get { return m_plantName; } set { m_plantName = value; } }
 
-        public DateTime DOB { get { return m_plantDOB; } }
+		public DateTime DOB { get { return m_plantDOB; } set { m_plantDOB = value; }}
     }
 
     public class PottedPlant : Plant, IWaterControl

@@ -14,7 +14,7 @@ using Android.Widget;
 
 namespace AutoGarden.Droid
 {
-	[Activity(Theme = "@style/MyTheme.Splash", Label = "SplashActivity", MainLauncher = true, NoHistory = true)]
+	[Activity(Theme = "@style/MyTheme.Splash",Label="AutoGarden", MainLauncher = true, NoHistory = true)]
     public class SplashActivity : AppCompatActivity
     {
         protected override void OnCreate(Bundle savedInstanceState)

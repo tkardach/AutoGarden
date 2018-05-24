@@ -3,7 +3,9 @@
     android:orientation="vertical"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@drawable/griditemborder">
+    android:descendantFocusability="blocksDescendants"
+    android:background="@drawable/griditemborder"
+    android:clickable="false">
     <ImageButton
         android:id="@+id/gridAddButton"
         android:layout_gravity="center"
@@ -12,6 +14,5 @@
         android:padding="10dp"
         android:background="@android:color/transparent"
         android:scaleType="fitCenter"
-        android:clickable="true"
         android:src="@drawable/add" />
 </LinearLayout>

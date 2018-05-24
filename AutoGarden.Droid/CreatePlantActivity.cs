@@ -28,8 +28,7 @@ namespace AutoGarden.Droid
         ArrayAdapter m_plantTypeAdapter;
         ArrayAdapter m_bleServiceAdapter;
 
-		CreatePlantConnection m_connectionStatus;      
-        Dictionary<string, BLEDevice> m_nearbyBleDevices;
+		CreatePlantConnection m_connectionStatus;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -40,9 +39,6 @@ namespace AutoGarden.Droid
             InitializeUIComponents();
 
 			m_connectionStatus = new CreatePlantConnection(this);
-            //m_nearbyBleDevices = new Dictionary<string, BLEDevice>();
-            //var list = await Task.Run(() => GetBLEScannedDevList());
-         
         }
 
 		protected override void OnStart()
@@ -82,55 +78,6 @@ namespace AutoGarden.Droid
                 m_bleServiceAdapter.SetDropDownViewResource(Android.Resource.Layout.SimpleSpinnerDropDownItem);
                 m_bleDevices.Adapter = m_bleServiceAdapter;
             });
-        }
-
-        /// <summary>
-        /// Scans for nearby BLE devices and returns a list of device names.
-        /// </summary>
-        /// <returns>A list of the scanned device names.</returns>
-        private List<string> GetBLEScannedDevList()
-        {
-            /*** Create drop down for know BLE devices ***/
-            try
-            {
-                var serviceList = DatabaseConnection.GetBLEServices();
-                var deviceList = RPiCommLink.ScanCommand();
-
-                if (deviceList == null) return null;
-
-                // Get device names
-                var list = new List<string>();
-                m_nearbyBleDevices.Clear();
-
-                // Fill up the list of device names, and nearby devices
-                foreach (var dev in deviceList)
-                {
-					// Add the device to scan list and nearby device list
-					if (!m_nearbyBleDevices.ContainsKey(dev.DeviceName) &&
-					    !dev.DeviceName.Equals("No Name"))
-					{
-						list.Add(dev.DeviceName);
-						m_nearbyBleDevices.Add(dev.DeviceName, dev);
-					}
-					else
-					{
-						if (!m_nearbyBleDevices.ContainsKey(dev.MAC))
-						{
-							list.Add(dev.MAC);
-							m_nearbyBleDevices.Add(dev.MAC, dev);
-						}
-					}
-
-                    Log.Info(TAG, dev.DeviceName);
-                }
-
-                return list;
-            }
-            catch (Exception e)
-            {
-                string toast = string.Format("{0}", e.Message);
-                return null;
-            }
         }
 
         /// <summary>

@@ -19,8 +19,6 @@ namespace AutoGarden.Droid
 		Dictionary<string, BLEDevice> m_nearbyBleDevices;
 		List<string> m_scannedDevices;
 
-		CreatePlantActivity m_activity;
-
 		public bool Scanning { get; private set; }
 		public bool ScanComplete { get; private set; }
 
@@ -39,7 +37,7 @@ namespace AutoGarden.Droid
             Scanning = true;
 
 			// start your service logic here
-			m_scannedDevices = Task.Run(() => GetBLEScannedDevList()).Result;
+			m_scannedDevices = GetBLEScannedDevList();
 
 			ScanComplete = true;
 
@@ -116,6 +114,10 @@ namespace AutoGarden.Droid
             this.service = service;
         }
 
+        /// <summary>
+        /// Gets a list of all the nearby BLE device names.
+        /// </summary>
+        /// <returns>The names of the nearby BLE devices.</returns>
         public BLEScanService GetBLEScanService()
         {
             return service;

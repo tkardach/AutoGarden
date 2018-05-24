@@ -37,6 +37,12 @@
     <Reference Include="netstandard">
       <HintPath>bin\Debug\netstandard.dll</HintPath>
     </Reference>
+    <Reference Include="netstandard">
+      <HintPath>bin\Debug\netstandard.dll</HintPath>
+    </Reference>
+    <Reference Include="netstandard">
+      <HintPath>bin\Debug\netstandard.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Test.cs" />

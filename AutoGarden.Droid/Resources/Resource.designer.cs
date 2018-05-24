@@ -303,6 +303,18 @@ namespace AutoGarden.Droid
 			// aapt resource value: 0x7f01009c
 			public const int checkedTextViewStyle = 2130772124;
 			
+			// aapt resource value: 0x7f010100
+			public const int civ_border_color = 2130772224;
+			
+			// aapt resource value: 0x7f010101
+			public const int civ_border_overlay = 2130772225;
+			
+			// aapt resource value: 0x7f0100ff
+			public const int civ_border_width = 2130772223;
+			
+			// aapt resource value: 0x7f010102
+			public const int civ_fill_color = 2130772226;
+			
 			// aapt resource value: 0x7f0100cc
 			public const int closeIcon = 2130772172;
 			
@@ -552,59 +564,59 @@ namespace AutoGarden.Droid
 			// aapt resource value: 0x7f0100b5
 			public const int measureWithLargestChild = 2130772149;
 			
-			// aapt resource value: 0x7f01010a
-			public const int ms_alignLabels = 2130772234;
-			
 			// aapt resource value: 0x7f01010e
-			public const int ms_arrowColor = 2130772238;
+			public const int ms_alignLabels = 2130772238;
 			
-			// aapt resource value: 0x7f01010d
-			public const int ms_arrowSize = 2130772237;
+			// aapt resource value: 0x7f010112
+			public const int ms_arrowColor = 2130772242;
 			
-			// aapt resource value: 0x7f0100ff
-			public const int ms_baseColor = 2130772223;
-			
-			// aapt resource value: 0x7f010110
-			public const int ms_enableErrorLabel = 2130772240;
-			
-			// aapt resource value: 0x7f01010f
-			public const int ms_enableFloatingLabel = 2130772239;
-			
-			// aapt resource value: 0x7f010102
-			public const int ms_error = 2130772226;
-			
-			// aapt resource value: 0x7f010101
-			public const int ms_errorColor = 2130772225;
-			
-			// aapt resource value: 0x7f010106
-			public const int ms_floatingLabelColor = 2130772230;
-			
-			// aapt resource value: 0x7f010105
-			public const int ms_floatingLabelText = 2130772229;
-			
-			// aapt resource value: 0x7f010100
-			public const int ms_highlightColor = 2130772224;
+			// aapt resource value: 0x7f010111
+			public const int ms_arrowSize = 2130772241;
 			
 			// aapt resource value: 0x7f010103
-			public const int ms_hint = 2130772227;
+			public const int ms_baseColor = 2130772227;
 			
-			// aapt resource value: 0x7f010104
-			public const int ms_hintColor = 2130772228;
+			// aapt resource value: 0x7f010114
+			public const int ms_enableErrorLabel = 2130772244;
 			
-			// aapt resource value: 0x7f010107
-			public const int ms_multiline = 2130772231;
+			// aapt resource value: 0x7f010113
+			public const int ms_enableFloatingLabel = 2130772243;
 			
-			// aapt resource value: 0x7f010108
-			public const int ms_nbErrorLines = 2130772232;
+			// aapt resource value: 0x7f010106
+			public const int ms_error = 2130772230;
 			
-			// aapt resource value: 0x7f01010b
-			public const int ms_thickness = 2130772235;
+			// aapt resource value: 0x7f010105
+			public const int ms_errorColor = 2130772229;
 			
-			// aapt resource value: 0x7f01010c
-			public const int ms_thickness_error = 2130772236;
+			// aapt resource value: 0x7f01010a
+			public const int ms_floatingLabelColor = 2130772234;
 			
 			// aapt resource value: 0x7f010109
-			public const int ms_typeface = 2130772233;
+			public const int ms_floatingLabelText = 2130772233;
+			
+			// aapt resource value: 0x7f010104
+			public const int ms_highlightColor = 2130772228;
+			
+			// aapt resource value: 0x7f010107
+			public const int ms_hint = 2130772231;
+			
+			// aapt resource value: 0x7f010108
+			public const int ms_hintColor = 2130772232;
+			
+			// aapt resource value: 0x7f01010b
+			public const int ms_multiline = 2130772235;
+			
+			// aapt resource value: 0x7f01010c
+			public const int ms_nbErrorLines = 2130772236;
+			
+			// aapt resource value: 0x7f01010f
+			public const int ms_thickness = 2130772239;
+			
+			// aapt resource value: 0x7f010110
+			public const int ms_thickness_error = 2130772240;
+			
+			// aapt resource value: 0x7f01010d
+			public const int ms_typeface = 2130772237;
 			
 			// aapt resource value: 0x7f010023
 			public const int multiChoiceItemLayout = 2130772003;
@@ -1859,61 +1871,64 @@ namespace AutoGarden.Droid
 			public const int circle = 2130837588;
 			
 			// aapt resource value: 0x7f020055
-			public const int doge = 2130837589;
+			public const int circleimage = 2130837589;
 			
 			// aapt resource value: 0x7f020056
-			public const int griditemborder = 2130837590;
+			public const int doge = 2130837590;
 			
 			// aapt resource value: 0x7f020057
-			public const int img = 2130837591;
+			public const int griditemborder = 2130837591;
 			
 			// aapt resource value: 0x7f020058
-			public const int my_background = 2130837592;
+			public const int img = 2130837592;
 			
 			// aapt resource value: 0x7f020059
-			public const int notification_action_background = 2130837593;
+			public const int my_background = 2130837593;
 			
 			// aapt resource value: 0x7f02005a
-			public const int notification_bg = 2130837594;
+			public const int notification_action_background = 2130837594;
 			
 			// aapt resource value: 0x7f02005b
-			public const int notification_bg_low = 2130837595;
+			public const int notification_bg = 2130837595;
 			
 			// aapt resource value: 0x7f02005c
-			public const int notification_bg_low_normal = 2130837596;
+			public const int notification_bg_low = 2130837596;
 			
 			// aapt resource value: 0x7f02005d
-			public const int notification_bg_low_pressed = 2130837597;
+			public const int notification_bg_low_normal = 2130837597;
 			
 			// aapt resource value: 0x7f02005e
-			public const int notification_bg_normal = 2130837598;
+			public const int notification_bg_low_pressed = 2130837598;
 			
 			// aapt resource value: 0x7f02005f
-			public const int notification_bg_normal_pressed = 2130837599;
+			public const int notification_bg_normal = 2130837599;
 			
 			// aapt resource value: 0x7f020060
-			public const int notification_icon_background = 2130837600;
-			
-			// aapt resource value: 0x7f020066
-			public const int notification_template_icon_bg = 2130837606;
-			
-			// aapt resource value: 0x7f020067
-			public const int notification_template_icon_low_bg = 2130837607;
+			public const int notification_bg_normal_pressed = 2130837600;
 			
 			// aapt resource value: 0x7f020061
-			public const int notification_tile_bg = 2130837601;
+			public const int notification_icon_background = 2130837601;
+			
+			// aapt resource value: 0x7f020067
+			public const int notification_template_icon_bg = 2130837607;
+			
+			// aapt resource value: 0x7f020068
+			public const int notification_template_icon_low_bg = 2130837608;
 			
 			// aapt resource value: 0x7f020062
-			public const int notify_panel_notification_icon_bg = 2130837602;
+			public const int notification_tile_bg = 2130837602;
 			
 			// aapt resource value: 0x7f020063
-			public const int splashscreen = 2130837603;
+			public const int notify_panel_notification_icon_bg = 2130837603;
 			
 			// aapt resource value: 0x7f020064
-			public const int tooltip_frame_dark = 2130837604;
+			public const int splashscreen = 2130837604;
 			
 			// aapt resource value: 0x7f020065
-			public const int tooltip_frame_light = 2130837605;
+			public const int tooltip_frame_dark = 2130837605;
+			
+			// aapt resource value: 0x7f020066
+			public const int tooltip_frame_light = 2130837606;
 			
 			static Drawable()
 			{
@@ -2135,8 +2150,8 @@ namespace AutoGarden.Droid
 			// aapt resource value: 0x7f0a007a
 			public const int media_actions = 2131361914;
 			
-			// aapt resource value: 0x7f0a0089
-			public const int message = 2131361929;
+			// aapt resource value: 0x7f0a008b
+			public const int message = 2131361931;
 			
 			// aapt resource value: 0x7f0a0023
 			public const int middle = 2131361827;
@@ -2188,6 +2203,12 @@ namespace AutoGarden.Droid
 			
 			// aapt resource value: 0x7f0a0068
 			public const int plantTypePrompt = 2131361896;
+			
+			// aapt resource value: 0x7f0a008a
+			public const int plantViewPlantBLE = 2131361930;
+			
+			// aapt resource value: 0x7f0a0089
+			public const int plantViewPlantName = 2131361929;
 			
 			// aapt resource value: 0x7f0a0005
 			public const int progress_circular = 2131361797;
@@ -2522,19 +2543,22 @@ namespace AutoGarden.Droid
 			public const int PlantGridItem = 2130903085;
 			
 			// aapt resource value: 0x7f03002e
-			public const int select_dialog_item_material = 2130903086;
+			public const int PlantView = 2130903086;
 			
 			// aapt resource value: 0x7f03002f
-			public const int select_dialog_multichoice_material = 2130903087;
+			public const int select_dialog_item_material = 2130903087;
 			
 			// aapt resource value: 0x7f030030
-			public const int select_dialog_singlechoice_material = 2130903088;
+			public const int select_dialog_multichoice_material = 2130903088;
 			
 			// aapt resource value: 0x7f030031
-			public const int support_simple_spinner_dropdown_item = 2130903089;
+			public const int select_dialog_singlechoice_material = 2130903089;
 			
 			// aapt resource value: 0x7f030032
-			public const int tooltip = 2130903090;
+			public const int support_simple_spinner_dropdown_item = 2130903090;
+			
+			// aapt resource value: 0x7f030033
+			public const int tooltip = 2130903091;
 			
 			static Layout()
 			{
@@ -4527,6 +4551,24 @@ namespace AutoGarden.Droid
 			// aapt resource value: 0
 			public const int ButtonBarLayout_allowStacking = 0;
 			
+			public static int[] CircleImageView = new int[] {
+					2130772223,
+					2130772224,
+					2130772225,
+					2130772226};
+			
+			// aapt resource value: 1
+			public const int CircleImageView_civ_border_color = 1;
+			
+			// aapt resource value: 2
+			public const int CircleImageView_civ_border_overlay = 2;
+			
+			// aapt resource value: 0
+			public const int CircleImageView_civ_border_width = 0;
+			
+			// aapt resource value: 3
+			public const int CircleImageView_civ_fill_color = 3;
+			
 			public static int[] ColorStateListItem = new int[] {
 					16843173,
 					16843551,
@@ -4708,10 +4750,6 @@ namespace AutoGarden.Droid
 			public const int ListPopupWindow_android_dropDownVerticalOffset = 1;
 			
 			public static int[] MaterialSpinner = new int[] {
-					2130772223,
-					2130772224,
-					2130772225,
-					2130772226,
 					2130772227,
 					2130772228,
 					2130772229,
@@ -4725,7 +4763,11 @@ namespace AutoGarden.Droid
 					2130772237,
 					2130772238,
 					2130772239,
-					2130772240};
+					2130772240,
+					2130772241,
+					2130772242,
+					2130772243,
+					2130772244};
 			
 			// aapt resource value: 11
 			public const int MaterialSpinner_ms_alignLabels = 11;
